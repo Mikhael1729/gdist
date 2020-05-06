@@ -1,11 +1,11 @@
 from random import randint
 import math
 
-def fill_group(elements_groups, current, difference, placed_elements, elements, groups_size):
+def fill_group(groups, current, difference, placed_elements, elements, groups_size):
     elements_quantity = len(elements)
 
     # Add students to the new or current group.
-    while len(elements_groups[current]) < (groups_size + difference):
+    while len(groups[current]) < (groups_size + difference):
         student_is_located = True
         all_students_are_placed = len(placed_elements) >= elements_quantity
 
@@ -16,41 +16,36 @@ def fill_group(elements_groups, current, difference, placed_elements, elements, 
             if placed_elements.get(random_student) == None:
                 student_is_located = False
                 placed_elements[random_student] = True
-                elements_groups[current][random_student] = elements[random_student]
+                groups[current][random_student] = elements[random_student]
                 break
             else:
                 student_is_located = True
 
 def distribute_elements(elements, groups_size, groups_max = float('inf')):
-    elements_groups = []
-
-    difference = 0 # The amount of extra elements a group will have.
+    groups = [] # Store the elements in groups.
+    placed_elements = {} # It's used to know if an element is placed or not yet.
     elements_quantity = len(elements)
 
-    # Generate groups of elements.
-    placed_elements = {}
+    # Generate groups of elements while all elements are placed in a group.
     while len(placed_elements) < elements_quantity:
-        # Create a new group of elements.
-        unplaced_elements = elements_quantity - len(placed_elements) 
+        unplaced_elements = elements_quantity - len(placed_elements) # Knows the placed elements in the randomly groups distribution
         enough_to_create_new_group =  unplaced_elements >= groups_size
-        exceeds_groups_max = len(elements_groups) >= groups_max
+        exceeds_groups_max = len(groups) >= groups_max
 
-        current = len(elements_groups) - 1
+        current = len(groups) - 1
 
         if enough_to_create_new_group and not exceeds_groups_max:
-            elements_groups.append({})
+            groups.append({})
             current += 1
-            fill_group(elements_groups, current, 0, placed_elements, elements, groups_size)    
+            fill_group(groups, current, 0, placed_elements, elements, groups_size)
         else:
-            difference = 0
-            
             for i in range(unplaced_elements):
                 random_group = randint(0, current)
-                fill_group(elements_groups, random_group, 1, placed_elements, elements, groups_size)    
+                fill_group(groups, random_group, 1, placed_elements, elements, groups_size)
 
             break
 
-    return elements_groups
+    return groups
 
 # Request and store the quantity of groups.
 print('N° estudiantes por grupo: ', end = '')
@@ -89,4 +84,4 @@ for i in range(len(students_groups)):
     count += 1
 
     print('')
-    
+
