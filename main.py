@@ -59,7 +59,7 @@ size = int(input())
 print('URL de archivo de estudiantes: ', end = '')
 students_url = str(input())
 
-print('URL de archivo de estudiantes: ', end = '')
+print('URL de archivo de temas: ', end = '')
 topics_url = str(input())
 
 # Get the list of students.
