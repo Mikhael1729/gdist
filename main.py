@@ -1,48 +1,35 @@
 from random import randint
 import math
 
-def fill_group(groups, current, difference, placed_elements, elements, groups_size):
-    elements_quantity = len(elements)
-
-    # Add students to the new or current group.
-    while len(groups[current]) < (groups_size + difference):
-        student_is_located = True
-        all_students_are_placed = len(placed_elements) >= elements_quantity
-
-        while(student_is_located and not all_students_are_placed):
-            random_student = randint(0, elements_quantity - 1)
-
-            # Know if this selected student is placed in a group or not.
-            if placed_elements.get(random_student) == None:
-                student_is_located = False
-                placed_elements[random_student] = True
-                groups[current][random_student] = elements[random_student]
-                break
-            else:
-                student_is_located = True
+# Fill a group with random objects of a given list of elements.
+def fill_group(groups, group_index, elements, groups_size, difference):
+    while (len(groups[group_index]) < (groups_size + difference)) and (len(elements) > 0):
+        random_element = randint(0, len(elements) - 1)
+        groups[group_index].append(elements[random_element])
+        del elements[random_element]
 
 def distribute_elements(elements, groups_size, groups_max = float('inf')):
+    groups_max = int(len(elements) / size) if groups_max == float('inf') else groups_max
     groups = [] # Store the elements in groups.
-    placed_elements = {} # It's used to know if an element is placed or not yet.
-    elements_quantity = len(elements)
 
     # Generate groups of elements while all elements are placed in a group.
-    while len(placed_elements) < elements_quantity:
-        unplaced_elements = elements_quantity - len(placed_elements) # Knows the placed elements in the randomly groups distribution
-        enough_to_create_new_group =  unplaced_elements >= groups_size
-        exceeds_groups_max = len(groups) >= groups_max
+    while len(elements):
+        groups_quantity = len(groups)
+        exceeds_groups_max = groups_quantity >= groups_max
 
-        current = len(groups) - 1
-
-        if enough_to_create_new_group and not exceeds_groups_max:
-            groups.append({})
-            current += 1
-            fill_group(groups, current, 0, placed_elements, elements, groups_size)
+        # Distribute elements in the current group.
+        if not exceeds_groups_max:
+            groups.append([])
+            fill_group(groups, groups_quantity, elements, groups_size, 0)
+            groups_quantity += 1
         else:
-            for i in range(unplaced_elements):
-                random_group = randint(0, current)
-                fill_group(groups, random_group, 1, placed_elements, elements, groups_size)
+            for i in range(len(elements)):
+                random_group = randint(0, groups_quantity - 1)
 
+                while len(groups[random_group]) >= groups_size + 1:
+                    random_group = randint(0, groups_quantity - 1)
+
+                fill_group(groups, random_group, elements, groups_size, 1)
             break
 
     return groups
@@ -69,17 +56,22 @@ with open(topics_url) as f:
 students_groups = distribute_elements(students, size)
 topic_groups = distribute_elements(topics, int(len(topics) / len(students_groups)), len(students_groups))
 
+print('')
 count = 0
+s_count = 0
+t_count = 0
 for i in range(len(students_groups)):
     print(f'Grupo {count + 1}:')
 
     print('  - Estudiantes')
-    for key, value in students_groups[i].items():
-        print('    - ', value, end = '')
+    for value in students_groups[i]:
+        print(f'    {s_count + 1}. ', value, end = '')
+        s_count += 1
 
     print('  - Temas')
-    for key, value in topic_groups[i].items():
-        print('    - ', value, end = '')
+    for value in topic_groups[i]:
+        print(f'    {t_count + 1}. ', value, end = '')
+        t_count += 1
 
     count += 1
 
